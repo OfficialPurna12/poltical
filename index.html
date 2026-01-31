@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="description" content="Interactive Eye Experience">
+    <title>प्रगतिशील लोकतान्त्रिक पार्टी</title>
+
+    <link rel="icon" type="image/png" href="images/images.webp">
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=Montserrat:wght@300;400;600&family=Noto+Sans+Devanagari:wght@400;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --gold: #d4af37;
+            --shadow-dark: rgba(0, 0, 0, 0.4);
+            --shadow-light: rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #1a1a2e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation;
+            position: relative;
+        }
+
+        /* Professional background image */
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080"><rect fill="%231a1a2e" width="1920" height="1080"/></svg>');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        /* Overlay for depth */
+        body::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 30% 40%, rgba(52, 152, 219, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(212, 175, 55, 0.05) 0%, transparent 50%),
+                linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(26, 26, 46, 0.8) 100%);
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100vh;
+            perspective: 1200px;
+            z-index: 1;
+        }
+
+        .eye-wrapper {
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+            transform-style: preserve-3d;
+            will-change: transform;
+            transition: transform 0.1s ease-out;
+        }
+
+        .professional-frame {
+            width: min(85vw, 85vh, 450px);
+            height: min(85vw, 85vh, 450px);
+            background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow:
+                0 30px 80px var(--shadow-dark),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+                0 0 60px rgba(52, 152, 219, 0.2);
+            position: relative;
+            overflow: visible;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Golden accent ring */
+        .professional-frame::before {
+            content: '';
+            position: absolute;
+            inset: -15px;
+            border-radius: 50%;
+            border: 2px solid var(--gold);
+            opacity: 0.3;
+            animation: pulse-ring 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-ring {
+
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.02);
+            }
+        }
+
+        /* Ripple effect on blink */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            border: 3px solid rgba(52, 152, 219, 0.6);
+            animation: ripple-animation 1.2s ease-out forwards;
+            pointer-events: none;
+            box-shadow: 0 0 20px rgba(52, 152, 219, 0.4);
+        }
+
+        @keyframes ripple-animation {
+            from {
+                width: 60%;
+                height: 60%;
+                opacity: 1;
+            }
+
+            to {
+                width: 130%;
+                height: 130%;
+                opacity: 0;
+            }
+        }
+
+        /* Eye SVG container */
+        .eye-svg {
+            width: 55%;
+            height: 55%;
+            filter: drop-shadow(0 10px 25px var(--shadow-light));
+            transform-origin: center center;
+            will-change: transform;
+            transition: transform 0.2s ease;
+        }
+
+        /* Blink animations - different intensities */
+        @keyframes blink-light {
+
+            0%,
+            100% {
+                transform: scaleY(1);
+            }
+
+            50% {
+                transform: scaleY(0.1);
+            }
+        }
+
+        @keyframes blink-medium {
+
+            0%,
+            100% {
+                transform: scaleY(1) scaleX(1);
+            }
+
+            50% {
+                transform: scaleY(0.05) scaleX(0.98);
+            }
+        }
+
+        @keyframes blink-heavy {
+
+            0%,
+            100% {
+                transform: scaleY(1) scaleX(1);
+            }
+
+            50% {
+                transform: scaleY(0.02) scaleX(0.95);
+            }
+        }
+
+        @keyframes blink-intense {
+
+            0%,
+            100% {
+                transform: scaleY(1) scaleX(1) rotate(0deg);
+            }
+
+            25% {
+                transform: scaleY(0.5) scaleX(0.98) rotate(-2deg);
+            }
+
+            50% {
+                transform: scaleY(0.01) scaleX(0.93) rotate(0deg);
+            }
+
+            75% {
+                transform: scaleY(0.5) scaleX(0.98) rotate(2deg);
+            }
+        }
+
+        .eye-svg.blink-light {
+            animation: blink-light 0.3s ease-in-out;
+        }
+
+        .eye-svg.blink-medium {
+            animation: blink-medium 0.35s ease-in-out;
+        }
+
+        .eye-svg.blink-heavy {
+            animation: blink-heavy 0.4s ease-in-out;
+        }
+
+        .eye-svg.blink-intense {
+            animation: blink-intense 0.5s ease-in-out;
+        }
+
+        /* Instructions */
+        .instructions {
+            position: absolute;
+            bottom: 5vh;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: clamp(13px, 3vw, 16px);
+            font-weight: 300;
+            letter-spacing: 2px;
+            padding: 0 20px;
+            max-width: 90vw;
+            font-family: 'Cormorant Garamond', serif;
+            text-transform: uppercase;
+            z-index: 5;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 40px 20px;
+            z-index: 10;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 100%);
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .hero-image {
+            flex: 0 0 auto;
+            width: clamp(200px, 30vw, 300px);
+        }
+
+        .hero-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 3px solid var(--gold);
+        }
+
+        .hero-text {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .hero-text h1 {
+            font-family: 'Noto Sans Devanagari', 'Montserrat', sans-serif;
+            font-size: clamp(20px, 4vw, 36px);
+            font-weight: 700;
+            color: white;
+            line-height: 1.5;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 768px) {
+            .hero-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 25px;
+            }
+
+            .hero-image {
+                width: clamp(150px, 50vw, 250px);
+            }
+
+            .hero-section {
+                padding: 25px 15px;
+            }
+        }
+
+        /* Title */
+        .title {
+            position: absolute;
+            top: auto;
+            bottom: 12vh;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: clamp(28px, 6vw, 48px);
+            font-weight: 300;
+            letter-spacing: 4px;
+            font-family: 'Cormorant Garamond', serif;
+            text-transform: uppercase;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            z-index: 5;
+        }
+
+        .title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 2px;
+            background: var(--gold);
+            margin: 10px auto 0;
+            opacity: 0.6;
+        }
+
+        /* Enable motion button */
+        .enable-motion-btn {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--primary);
+            border: 2px solid var(--gold);
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+            text-transform: uppercase;
+        }
+
+        .enable-motion-btn.hidden {
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+        }
+
+        .enable-motion-btn:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
+            border-color: var(--accent);
+        }
+
+        .enable-motion-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Touch feedback */
+        @media (hover: none) {
+            .eye-wrapper:active {
+                transform: scale(0.97);
+            }
+        }
+
+        /* Particle effect */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--gold);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            animation: particle-float 1.5s ease-out forwards;
+        }
+
+        @keyframes particle-float {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(var(--tx), var(--ty)) scale(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Hero Section -->
+    <div class="hero-section" id="heroSection">
+        <div class="hero-content">
+            <div class="hero-image">
+                <img src="images/images.webp" alt="Janardan Sharma Prabhakar">
+            </div>
+            <div class="hero-text">
+                <h1>प्रगतिशील लोकतान्त्रिक पार्टी का उम्मेदार जनार्दन शर्मा प्रभाकरलाई फागुन २१ को चुनाबमा अत्याधिक मतले
+                    बिजयी बनाउ</h1>
+            </div>
+        </div>
+    </div><br><br>
+    <div class="title">Vision</div>
+
+    <div class="container">
+        <div class="eye-wrapper" id="eyeWrapper">
+            <div class="professional-frame" id="professionalFrame">
+                <svg class="eye-svg" id="eyeSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+                    <!-- Outer eye shape -->
+                    <ellipse cx="32" cy="32" rx="28" ry="18" fill="#2c3e50" opacity="0.1" />
+
+                    <!-- White of the eye -->
+                    <ellipse cx="32" cy="32" rx="24" ry="15" fill="white" />
+
+                    <!-- Iris -->
+                    <circle cx="32" cy="32" r="11" fill="#3498db" />
+
+                    <!-- Iris detail - outer ring -->
+                    <circle cx="32" cy="32" r="11" fill="none" stroke="#2980b9" stroke-width="0.5" opacity="0.6" />
+
+                    <!-- Iris pattern -->
+                    <g opacity="0.3">
+                        <line x1="32" y1="24" x2="32" y2="40" stroke="#1a5276" stroke-width="0.3" />
+                        <line x1="26" y1="27" x2="38" y2="37" stroke="#1a5276" stroke-width="0.3" />
+                        <line x1="26" y1="37" x2="38" y2="27" stroke="#1a5276" stroke-width="0.3" />
+                        <line x1="23" y1="32" x2="41" y2="32" stroke="#1a5276" stroke-width="0.3" />
+                    </g>
+
+                    <!-- Pupil -->
+                    <circle cx="32" cy="32" r="6" fill="#1a1a2e" />
+
+                    <!-- Highlight -->
+                    <ellipse cx="29" cy="28" rx="2.5" ry="3" fill="white" opacity="0.9" />
+                    <ellipse cx="35" cy="30" rx="1.2" ry="1.5" fill="white" opacity="0.6" />
+
+                    <!-- Upper eyelid -->
+                    <path d="M 6 32 Q 32 14, 58 32" stroke="#2c3e50" stroke-width="2" fill="none"
+                        stroke-linecap="round" />
+
+                    <!-- Lower eyelid -->
+                    <path d="M 6 32 Q 32 50, 58 32" stroke="#2c3e50" stroke-width="2" fill="none"
+                        stroke-linecap="round" />
+
+                    <!-- Eyelashes top -->
+                    <g stroke="#2c3e50" stroke-width="0.8" opacity="0.7">
+                        <line x1="15" y1="24" x2="13" y2="20" />
+                        <line x1="20" y1="20" x2="19" y2="16" />
+                        <line x1="26" y1="17" x2="26" y2="13" />
+                        <line x1="32" y1="16" x2="32" y2="12" />
+                        <line x1="38" y1="17" x2="38" y2="13" />
+                        <line x1="44" y1="20" x2="45" y2="16" />
+                        <line x1="49" y1="24" x2="51" y2="20" />
+                    </g>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <button class="enable-motion-btn" id="enableMotionBtn">Enable Motion</button>
+
+    <div class="instructions" id="instructions">
+        Tap or Shake to Blink
+    </div>
+
+    <script>
+        // Audio management for eye blink sound
+        class EyeAudio {
+            constructor() {
+                this.context = null;
+                this.buffer = null;
+                this.loaded = false;
+                this.lastPlayTime = 0;
+                this.minInterval = 100;
+            }
+
+            async init() {
+                try {
+                    this.context = new (window.AudioContext || window.webkitAudioContext)();
+                    await this.generateBlinkSound();
+                    this.loaded = true;
+                } catch (error) {
+                    console.error('Audio initialization failed:', error);
+                }
+            }
+
+            async generateBlinkSound() {
+                // Generate a subtle eye blink sound
+                const sampleRate = this.context.sampleRate;
+                const duration = 0.15;
+                const length = sampleRate * duration;
+                const buffer = this.context.createBuffer(1, length, sampleRate);
+                const data = buffer.getChannelData(0);
+
+                for (let i = 0; i < length; i++) {
+                    const t = i / sampleRate;
+
+                    // Soft "whoosh" sound
+                    const noise = (Math.random() * 2 - 1) * 0.3;
+                    const filtered = noise * Math.exp(-30 * t);
+
+                    // Gentle click at start
+                    const click = Math.sin(2 * Math.PI * 800 * t) * Math.exp(-100 * t) * 0.2;
+
+                    // Soft release
+                    const release = Math.sin(2 * Math.PI * 200 * t) * Math.exp(-20 * t) * 0.15;
+
+                    const envelope = Math.exp(-15 * t);
+                    data[i] = (filtered + click + release) * envelope * 0.4;
+                }
+
+                this.buffer = buffer;
+            }
+
+            async play(intensity = 1.0) {
+                if (!this.loaded || !this.buffer) return;
+
+                const now = Date.now();
+                if (now - this.lastPlayTime < this.minInterval) return;
+                this.lastPlayTime = now;
+
+                try {
+                    if (this.context.state === 'suspended') {
+                        await this.context.resume();
+                    }
+
+                    const source = this.context.createBufferSource();
+                    const gainNode = this.context.createGain();
+
+                    source.buffer = this.buffer;
+                    source.connect(gainNode);
+                    gainNode.connect(this.context.destination);
+
+                    const volume = Math.min(0.3 + intensity * 0.5, 0.8);
+                    gainNode.gain.setValueAtTime(volume, this.context.currentTime);
+
+                    source.start(0);
+                } catch (error) {
+                    console.error('Playback failed:', error);
+                }
+            }
+        }
+
+        // Motion detection
+        class MotionDetector {
+            constructor(callback) {
+                this.callback = callback;
+                this.lastX = 0;
+                this.lastY = 0;
+                this.lastZ = 0;
+                this.threshold = 10;
+                this.lastShakeTime = 0;
+                this.shakeInterval = 100;
+                this.permissionGranted = false;
+            }
+
+            async requestPermission() {
+                if (typeof DeviceMotionEvent !== 'undefined' &&
+                    typeof DeviceMotionEvent.requestPermission === 'function') {
+                    try {
+                        const permission = await DeviceMotionEvent.requestPermission();
+                        this.permissionGranted = permission === 'granted';
+                        return this.permissionGranted;
+                    } catch (error) {
+                        console.error('Permission request failed:', error);
+                        return false;
+                    }
+                } else {
+                    this.permissionGranted = true;
+                    return true;
+                }
+            }
+
+            start() {
+                if (!this.permissionGranted) return;
+
+                window.addEventListener('devicemotion', (event) => {
+                    const acc = event.accelerationIncludingGravity;
+                    if (!acc) return;
+
+                    const x = acc.x || 0;
+                    const y = acc.y || 0;
+                    const z = acc.z || 0;
+
+                    const deltaX = Math.abs(x - this.lastX);
+                    const deltaY = Math.abs(y - this.lastY);
+                    const deltaZ = Math.abs(z - this.lastZ);
+                    const delta = deltaX + deltaY + deltaZ;
+
+                    this.lastX = x;
+                    this.lastY = y;
+                    this.lastZ = z;
+
+                    const now = Date.now();
+                    if (delta > this.threshold && now - this.lastShakeTime > this.shakeInterval) {
+                        this.lastShakeTime = now;
+                        const intensity = Math.min(delta / 50, 1);
+                        this.callback(intensity);
+                    }
+                });
+            }
+        }
+
+        // App initialization
+        const eyeAudio = new EyeAudio();
+        let motionDetector = null;
+        let audioInitialized = false;
+
+        const eyeWrapper = document.getElementById('eyeWrapper');
+        const eyeSvg = document.getElementById('eyeSvg');
+        const professionalFrame = document.getElementById('professionalFrame');
+        const instructions = document.getElementById('instructions');
+        const enableMotionBtn = document.getElementById('enableMotionBtn');
+
+        // Blink animation based on intensity
+        function blinkEye(intensity = 0.5) {
+            eyeSvg.classList.remove('blink-light', 'blink-medium', 'blink-heavy', 'blink-intense');
+
+            let blinkClass = 'blink-light';
+            if (intensity > 0.7) blinkClass = 'blink-intense';
+            else if (intensity > 0.5) blinkClass = 'blink-heavy';
+            else if (intensity > 0.3) blinkClass = 'blink-medium';
+
+            eyeSvg.classList.add(blinkClass);
+
+            setTimeout(() => {
+                eyeSvg.classList.remove(blinkClass);
+            }, 600);
+        }
+
+        // Ripple effect
+        function createRipple() {
+            const ripple = document.createElement('div');
+            ripple.classList.add('ripple');
+            professionalFrame.appendChild(ripple);
+
+            setTimeout(() => {
+                ripple.remove();
+            }, 1200);
+        }
+
+        // Particle effect
+        function createParticles() {
+            const numParticles = 6;
+            for (let i = 0; i < numParticles; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+
+                const angle = (Math.PI * 2 * i) / numParticles;
+                const distance = 80 + Math.random() * 40;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+
+                particle.style.setProperty('--tx', `${tx}px`);
+                particle.style.setProperty('--ty', `${ty}px`);
+                particle.style.left = '50%';
+                particle.style.top = '50%';
+
+                professionalFrame.appendChild(particle);
+
+                setTimeout(() => {
+                    particle.remove();
+                }, 1500);
+            }
+        }
+
+        // Blink the eye with sound
+        async function triggerBlink(intensity = 0.5) {
+            if (!audioInitialized) {
+                await eyeAudio.init();
+                audioInitialized = true;
+            }
+
+            await eyeAudio.play(intensity);
+            blinkEye(intensity);
+            createRipple();
+
+            if (intensity > 0.6) {
+                createParticles();
+            }
+        }
+
+        // Click/tap handler
+        eyeWrapper.addEventListener('click', () => {
+            triggerBlink(0.7);
+        });
+
+        // Enable motion button
+        enableMotionBtn.addEventListener('click', async () => {
+            const granted = await motionDetector.requestPermission();
+
+            if (granted) {
+                motionDetector.start();
+                enableMotionBtn.classList.add('hidden');
+            } else {
+                alert('Motion permission denied. You can still tap to blink the eye.');
+                enableMotionBtn.classList.add('hidden');
+            }
+        });
+
+        // Initialize motion detection
+        motionDetector = new MotionDetector((intensity) => {
+            triggerBlink(intensity);
+        });
+
+        // Auto-enable motion for non-iOS devices
+        window.addEventListener('load', () => {
+            if (typeof DeviceMotionEvent !== 'undefined' &&
+                typeof DeviceMotionEvent.requestPermission === 'function') {
+                enableMotionBtn.style.display = 'block';
+            } else {
+                motionDetector.permissionGranted = true;
+                motionDetector.start();
+                enableMotionBtn.classList.add('hidden');
+            }
+        });
+
+        // Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(() => {
+                    console.log('Service worker registration optional');
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>
